@@ -351,19 +351,16 @@ function osd_disk_prepare {
   # TODO:
   # -  add device format check (make sure only one device is passed
 
-  if [[ "$(parted --script ${OSD_DEVICE} print | egrep '^ 1.*ceph data')" && ${OSD_FORCE_ZAP} -ne "1" ]]; then
-    echo "ERROR- It looks like this device is an OSD, set OSD_FORCE_ZAP=1 to use this device anyway and zap its content"
-    exit 1
-  elif [[ "$(parted --script ${OSD_DEVICE} print | egrep '^ 1.*ceph data')" && ${OSD_FORCE_ZAP} -eq "1" ]]; then
+  if [[ "$(parted --script ${OSD_DEVICE} print | egrep '^ 1.*ceph data')" && ${OSD_FORCE_ZAP} -eq "1" ]]; then
     ceph-disk -v zap ${OSD_DEVICE}
-  fi
 
-  if [[ ! -z "${OSD_JOURNAL}" ]]; then
-    ceph-disk -v prepare ${OSD_DEVICE} ${OSD_JOURNAL}
-    chown ceph. ${OSD_JOURNAL}
-  else
-    ceph-disk -v prepare ${OSD_DEVICE}
-    chown ceph. $(dev_part ${OSD_DEVICE} 2)
+    if [[ ! -z "${OSD_JOURNAL}" ]]; then
+      ceph-disk -v prepare ${OSD_DEVICE} ${OSD_JOURNAL}
+      chown ceph. ${OSD_JOURNAL}
+    else
+      ceph-disk -v prepare ${OSD_DEVICE}
+      chown ceph. $(dev_part ${OSD_DEVICE} 2)
+    fi
   fi
 
   ceph-disk -v --setuser ceph --setgroup disk activate $(dev_part ${OSD_DEVICE} 1)
