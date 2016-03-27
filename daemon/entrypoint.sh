@@ -351,7 +351,7 @@ function osd_disk_prepare {
   # TODO:
   # -  add device format check (make sure only one device is passed
 
-  if [[ "$(parted --script ${OSD_DEVICE} print | egrep '^ 1.*ceph data')" && ${OSD_FORCE_ZAP} -eq "1" ]]; then
+  if [[ ${OSD_FORCE_ZAP} -eq "1" ]]; then
     ceph-disk -v zap ${OSD_DEVICE}
 
     if [[ ! -z "${OSD_JOURNAL}" ]]; then
